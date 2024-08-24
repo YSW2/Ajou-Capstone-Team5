@@ -7,12 +7,24 @@ import Loading from "../../utils/Loading";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Icon, color } from "@rneui/base";
 import { getUsertoken } from "../../utils/localStorageUtils";
+import { NewsSummaryProps } from "../../types/Navigations";
 
-const NewsSummary = ({ route, navigation }) => {
-  const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState([]);
+type SummaryType = {
+  title: string;
+  content: string;
+};
+
+const NewsSummary: React.FC<NewsSummaryProps> = ({ route, navigation }) => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [summary, setSummary] = useState<SummaryType[]>([
+    {
+      title: "",
+      content: "",
+    },
+  ]);
   const { ticker, name } = route.params;
-  const fetchNewsSummary = async (ticker) => {
+
+  const fetchNewsSummary = async (ticker: string): Promise<string> => {
     try {
       const token = await getUsertoken();
       const response = await fetch(
@@ -34,19 +46,21 @@ const NewsSummary = ({ route, navigation }) => {
         }
       } else {
         console.log("fetch error: ", response.status);
-        return [];
+        return "";
       }
     } catch (error) {
       console.error("News Error :", error);
       throw error;
     }
   };
-  const isNewsExist = () => {
+
+  const isNewsExist = (): boolean => {
     if (summary.length > 0) {
       return true;
     }
     return false;
   };
+
   useEffect(() => {
     const loadNewsData = async () => {
       try {
@@ -69,6 +83,7 @@ const NewsSummary = ({ route, navigation }) => {
     };
     loadNewsData();
   }, []);
+
   if (loading) {
     return <Loading />;
   }
@@ -119,6 +134,7 @@ const NewsSummary = ({ route, navigation }) => {
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

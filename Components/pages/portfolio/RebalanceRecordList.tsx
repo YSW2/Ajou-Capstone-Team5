@@ -7,23 +7,37 @@ import AppText from "../../utils/AppText";
 import { usePortfolio } from "../../utils/PortfolioContext";
 import { useFocusEffect } from "@react-navigation/native";
 import Loading from "../../utils/Loading";
+import { RebalanceRecordListProps } from "../../types/Navigations";
 
-const RebalanceRecordList = ({ route, navigation }) => {
-  const { rebalanceRecords } = usePortfolio();
-  const [loading, setLoading] = useState(true);
-  const [rebalanceRecordList, setrebalanceRecordList] = useState([]);
-  const [tickerName, setTickerName] = useState([]);
+type TickerName = {
+  [key: string]: string;
+};
+
+const RebalanceRecordList: React.FC<RebalanceRecordListProps> = ({
+  route,
+  navigation,
+}) => {
+  const { rebalanceRecords, getPortfolioById } = usePortfolio();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [rebalanceRecordList, setrebalanceRecordList] = useState<
+    RebalanceRecordList[]
+  >([]);
+  const [tickerName, setTickerName] = useState<TickerName>({});
+  const { id } = route.params;
 
   useFocusEffect(
     useCallback(() => {
       if (route.params) {
         const list = rebalanceRecords.filter(
-          (rebalanceRecords) => rebalanceRecords.pfId === route.params.id
+          (rebalanceRecords) => rebalanceRecords.pfId === id
         );
         setrebalanceRecordList(
-          list.sort((a, b) => new Date(b.date) - new Date(a.date))
+          list.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          )
         );
-        const name = route.params.stocks.reduce((acc, item) => {
+        const stocks = getPortfolioById(id)?.detail.stocks;
+        const name = stocks!.reduce<TickerName>((acc, item) => {
           acc[item.ticker] = item.companyName;
           return acc;
         }, {});
@@ -86,7 +100,8 @@ const RebalanceRecordList = ({ route, navigation }) => {
                   </AppText>
                 </View>
                 <AppText style={styles.alertContent}>
-                  {item.date.replace("T", " ")}에 진행한 리밸런싱 내역입니다.
+                  {String(item.date).replace("T", " ")}에 진행한 리밸런싱
+                  내역입니다.
                 </AppText>
                 <View style={styles.moveButton}>
                   <AppText style={{ color: "#999" }}>

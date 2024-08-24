@@ -1,22 +1,34 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Divider, Icon } from "@rneui/base";
 import { width, height, deepCopy, filteringNumber } from "../../utils/utils";
 import AppText from "../../utils/AppText";
 import Loading from "../../utils/Loading";
+import { ViewRebalanceRecordProps } from "../../types/Navigations";
 
-const ViewRebalanceRecord = ({ route, navigation }) => {
-  const { pfId, date, records, tickerName} = route.params;
-  const [rebalanceRecord, setrebalanceRecord] = useState(records)
-  const [loading, setLoading] = useState(true);
-  const [isAscending, setIsAscending] = useState(true);
+const ViewRebalanceRecord: React.FC<ViewRebalanceRecordProps> = ({
+  route,
+  navigation,
+}) => {
+  const { pfId, date, records, tickerName } = route.params;
+  const [rebalanceRecord, setRebalanceRecord] = useState<RebalancingStock[]>(
+    []
+  );
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isAscending, setIsAscending] = useState<boolean>(true);
 
-  const handleSort = (prop) => {
+  const handleSort = (prop: keyof RebalancingStock): void => {
     setIsAscending(!isAscending);
 
     if (prop === "name") {
-      setrebalanceRecord(
+      setRebalanceRecord(
         [...rebalanceRecord].sort((a, b) => {
           return isAscending
             ? b.name.localeCompare(a.name)
@@ -24,7 +36,7 @@ const ViewRebalanceRecord = ({ route, navigation }) => {
         })
       );
     } else {
-      setrebalanceRecord(
+      setRebalanceRecord(
         [...rebalanceRecord].sort((a, b) => {
           const sortFactor = isAscending ? 1 : -1;
           return (Number(a[prop]) - Number(b[prop])) * sortFactor;
@@ -34,14 +46,15 @@ const ViewRebalanceRecord = ({ route, navigation }) => {
   };
 
   useEffect(() => {
-    setrebalanceRecord(records.map(record => {
-      record.name = tickerName[record.ticker];
-      record.totalPrice = (record.price * record.number);
-      return record;
-    }))
-    console.log(rebalanceRecord);
+    setRebalanceRecord(
+      records.map((record) => {
+        record.name = tickerName[record.ticker];
+        record.totalPrice = record.price * record.number;
+        return record;
+      })
+    );
     setLoading(false);
-  }, [])
+  }, []);
   if (loading) return <Loading />;
 
   return (
@@ -56,9 +69,7 @@ const ViewRebalanceRecord = ({ route, navigation }) => {
         />
       </View>
       <View style={styles.textContainer}>
-        <AppText
-          style={{ fontSize: 30, fontWeight: "bold" }}
-        >
+        <AppText style={{ fontSize: 30, fontWeight: "bold" }}>
           리밸런싱 내역
         </AppText>
       </View>
@@ -146,20 +157,26 @@ const ViewRebalanceRecord = ({ route, navigation }) => {
               <TouchableOpacity style={styles.rebalanceItemContent}>
                 <View style={styles.itemNameBox}>
                   <AppText style={styles.itemName}>{item.name}</AppText>
-                  <AppText style={styles.itemOnePrice}>{item.price.toLocaleString()}원</AppText>
-                </View>
-                <AppText style={styles.itemNumber}>{item.number.toLocaleString()}</AppText>
-                <AppText style={styles.itemPrice}>{item.totalPrice.toLocaleString()} 원</AppText>
-                <AppText
-                    style={{
-                      flex: 1,
-                      textAlign: "center",
-                      color: item.buy ? "#ff5858" : "#5878ff",
-                      fontSize: 15,
-                    }}
-                  >
-                    {item.buy ? " 매수" : " 매도"}
+                  <AppText style={styles.itemOnePrice}>
+                    {item.price.toLocaleString()}원
                   </AppText>
+                </View>
+                <AppText style={styles.itemNumber}>
+                  {item.number.toLocaleString()}
+                </AppText>
+                <AppText style={styles.itemPrice}>
+                  {item.totalPrice.toLocaleString()} 원
+                </AppText>
+                <AppText
+                  style={{
+                    flex: 1,
+                    textAlign: "center",
+                    color: item.buy ? "#ff5858" : "#5878ff",
+                    fontSize: 15,
+                  }}
+                >
+                  {item.buy ? " 매수" : " 매도"}
+                </AppText>
               </TouchableOpacity>
             </View>
           ))}

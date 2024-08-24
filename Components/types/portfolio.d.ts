@@ -56,8 +56,10 @@ declare global {
   type RebalancingStock = {
     ticker: string;
     number: number;
-    isBuy: boolean;
+    buy: boolean;
     price: number;
+    name: string;
+    totalPrice: number;
   };
 
   type RebalancingList = {
@@ -68,7 +70,7 @@ declare global {
   };
 
   type RebalanceRecordList = {
-    date: Date | null;
+    date: Date;
     pfId: number;
     records: RebalancingStock[];
   };

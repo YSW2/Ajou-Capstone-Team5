@@ -42,7 +42,12 @@ export type RootStackParamList = {
   AddStockInManual: { id: number };
   ManagePortfolio: { id: number };
   RebalanceRecordList: { id: number };
-  ViewRebalanceRecord: undefined;
+  ViewRebalanceRecord: {
+    pfId: number;
+    date: Date;
+    records: RebalancingStock[];
+    tickerName: { [key: string]: string };
+  };
   ModifyPortfolio: undefined;
   MakePortfolio: undefined;
 };
@@ -58,6 +63,18 @@ export type PortfolioDetailsProps = StackScreenProps<
 export type ManagePortfolioProps = StackScreenProps<
   RootStackParamList,
   "ManagePortfolio"
+>;
+export type NewsSummaryProps = StackScreenProps<
+  RootStackParamList,
+  "NewsSummary"
+>;
+export type RebalanceRecordListProps = StackScreenProps<
+  RootStackParamList,
+  "RebalanceRecordList"
+>;
+export type ViewRebalanceRecordProps = StackScreenProps<
+  RootStackParamList,
+  "ViewRebalanceRecord"
 >;
 
 const Stack = createStackNavigator<RootStackParamList>();
